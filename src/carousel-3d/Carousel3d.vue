@@ -120,6 +120,10 @@ export default {
     oneDirectional: {
       type: Boolean,
       default: false
+    },
+    disableInteraction: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -256,20 +260,22 @@ export default {
      * @param  {String} index of slide where to go
      */
     goSlide (index) {
-      this.currentIndex = (index < 0 || index > this.total - 1) ? 0 : index
+      if (!this.disableInteraction) {
+        this.currentIndex = (index < 0 || index > this.total - 1) ? 0 : index
 
-      if (this.isLastSlide) {
-        if (this.onLastSlide !== noop) {
-          console.warn('onLastSlide deprecated, please use @last-slide')
+        if (this.isLastSlide) {
+          if (this.onLastSlide !== noop) {
+            console.warn('onLastSlide deprecated, please use @last-slide')
+          }
+          this.onLastSlide(this.currentIndex)
+
+          this.$emit('last-slide', this.currentIndex)
         }
-        this.onLastSlide(this.currentIndex)
 
-        this.$emit('last-slide', this.currentIndex)
+        this.$emit('before-slide-change', this.currentIndex)
+
+        setTimeout(() => this.animationEnd(), this.animationSpeed)
       }
-
-      this.$emit('before-slide-change', this.currentIndex)
-
-      setTimeout(() => this.animationEnd(), this.animationSpeed)
     },
     /**
      * Go to slide far slide
